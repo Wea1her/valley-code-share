@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071b1c">
+  <title>管理后台 · 峡谷口令互助</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body class="admin-body">
+  <main>
+    <section id="loginView" class="login-shell">
+      <a class="brand login-brand" href="/"><span class="brand-mark">令</span><span><strong>峡谷口令互助</strong><small>管理员后台</small></span></a>
+      <form id="loginForm" class="login-card">
+        <span class="eyebrow">仅限管理员</span>
+        <h1>管理口令活动</h1>
+        <p>创建活动、配置奖励档位并处理异常反馈。</p>
+        <div class="field"><label for="adminPassword">管理员密码</label><input id="adminPassword" name="password" type="password" autocomplete="current-password" required autofocus></div>
+        <button class="primary-button" type="submit">进入后台</button>
+      </form>
+    </section>
+
+    <section id="dashboardView" class="hidden admin-shell">
+      <header class="admin-header">
+        <a class="brand" href="/"><span class="brand-mark">令</span><span><strong>互助管理台</strong><small>Valley Codes Console</small></span></a>
+        <div class="admin-nav"><a class="ghost-button" href="/">查看用户端</a><button class="ghost-button" id="logoutButton" type="button">退出</button></div>
+      </header>
+
+      <div class="admin-title"><div><span class="eyebrow">运营总览</span><h1>活动与口令</h1><p>所有设置会立即影响用户端，请先用草稿状态完成配置。</p></div><button class="primary-button" id="newActivityButton" type="button">＋ 新建活动</button></div>
+      <div class="metrics" id="metrics"></div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-panel="activities" type="button">活动管理</button>
+        <button class="admin-tab" data-panel="codes" type="button">口令审核</button>
+        <button class="admin-tab" data-panel="settings" type="button">网站设置</button>
+      </div>
+
+      <section id="activitiesPanel" class="admin-panel"></section>
+      <section id="codesPanel" class="admin-panel hidden">
+        <div class="panel-toolbar"><div><h2>口令审核</h2><p>最多显示最近500条口令。</p></div><select id="codeActivityFilter"><option value="">全部活动</option></select></div>
+        <div class="table-wrap"><table><thead><tr><th>活动与档位</th><th>口令</th><th>状态</th><th>次数</th><th>反馈</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table></div>
+      </section>
+      <section id="settingsPanel" class="admin-panel hidden">
+        <form id="settingsForm" class="settings-form">
+          <div class="panel-toolbar"><div><h2>网站设置</h2><p>品牌、规则和赞助入口均在这里维护。</p></div><button class="primary-button" type="submit">保存设置</button></div>
+          <div class="settings-grid">
+            <div class="field"><label>网站名称</label><input name="site_name" required></div>
+            <div class="field full-field"><label>非官方声明</label><textarea name="site_notice" rows="3" required></textarea></div>
+            <div class="field full-field"><label>提交规则确认</label><textarea name="terms" rows="3" required></textarea></div>
+            <div class="field full-field"><label>领取风险提示</label><textarea name="claim_notice" rows="3" required></textarea></div>
+          </div>
+          <div class="sponsor-settings">
+            <label class="switch-row"><input name="sponsor_enabled" type="checkbox"><span>启用赞助入口</span></label>
+            <div class="settings-grid"><div class="field"><label>赞助标题</label><input name="sponsor_title"></div><div class="field full-field"><label>赞助说明</label><textarea name="sponsor_text" rows="3"></textarea></div><div class="field full-field"><label>收款二维码图片</label><input id="sponsorQrFile" type="file" accept="image/png,image/jpeg,image/webp"><small>图片会保存在本地数据库中；建议小于500KB。</small><img id="sponsorQrPreview" class="qr-preview hidden" alt="当前二维码"></div></div>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="activityDialog" class="app-dialog admin-dialog">
+    <div class="dialog-head"><div><span class="eyebrow">活动配置</span><h2 id="activityDialogTitle">新建活动</h2></div><button class="icon-button close-dialog" type="button">×</button></div>
+    <form id="activityForm" class="activity-form dialog-scroll">
+      <input name="id" type="hidden">
+      <div class="form-grid">
+        <div class="field"><label>活动名称</label><input name="title" required placeholder="例如：农活口令互助"></div>
+        <div class="field"><label>短链接标识</label><input name="slug" required pattern="[a-z0-9-]+" placeholder="farm-2026"></div>
+        <div class="field full-field"><label>卡片摘要</label><input name="summary" maxlength="100" placeholder="一句话说明活动价值"></div>
+        <div class="field full-field"><label>活动说明</label><textarea name="description" rows="4"></textarea></div>
+        <div class="field"><label>状态</label><select name="status"><option value="draft">草稿</option><option value="published">已发布</option><option value="paused">已暂停</option><option value="ended">已结束</option></select></div>
+        <div class="field"><label>奖励模式</label><select name="reward_mode"><option value="numeric">数值模式</option><option value="options">预设选项</option><option value="single">单一奖励</option></select></div>
+        <div class="field"><label>开始时间</label><input name="starts_at" type="datetime-local"></div>
+        <div class="field"><label>结束时间</label><input name="ends_at" type="datetime-local"></div>
+        <div class="field"><label>奖励单位</label><input name="reward_unit" value="活动代币"></div>
+        <div class="field"><label>每个口令可领取次数</label><input name="code_capacity" type="number" min="1" max="100" value="10" required></div>
+        <div class="field"><label>每浏览器每日领取</label><input name="daily_claim_browser" type="number" min="1" value="2" required></div>
+        <div class="field"><label>每浏览器每日提交</label><input name="daily_submit_browser" type="number" min="1" value="3" required></div>
+        <div class="field"><label>每IP每日提交</label><input name="daily_submit_ip" type="number" min="1" value="30" required></div>
+        <div class="field full-field"><label>奖励档位（每行一个：名称 | 最小值 | 最大值）</label><textarea name="tiers_text" rows="5" required placeholder="普通 | 0 | 299&#10;较高 | 300 | 599&#10;稀有 | 600 |"></textarea><small>选项模式和单一模式也至少需要一个档位；没有边界时可以留空。</small></div>
+        <div class="field full-field option-config"><label>奖励选项（每行一个：奖励名称 | 档位序号）</label><textarea name="options_text" rows="4" placeholder="头像框 | 1&#10;限时语音 | 2"></textarea><small>档位序号从1开始。</small></div>
+        <div class="field full-field"><label>适用范围（每行一个，可留空表示全平台通用）</label><textarea name="scopes_text" rows="4" placeholder="微信区&#10;QQ区"></textarea></div>
+      </div>
+      <div class="dialog-form-actions"><button class="ghost-button close-dialog" type="button">取消</button><button class="primary-button" type="submit">保存活动</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/admin.js" defer></script>
+</body>
+</html>
+
