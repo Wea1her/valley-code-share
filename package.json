@@ -1,0 +1,24 @@
+{
+  "name": "valley-code-share",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:web",
+    "build:web": "node scripts/build.mjs",
+    "check": "tsc -p tsconfig.api.json --noEmit && npm run build:web",
+    "smoke:production": "node --env-file=.env.local scripts/smoke-production.mjs",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}
